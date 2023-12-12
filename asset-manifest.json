@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.js": "/amigo-secreto/static/js/main.9756d588.js",
+    "main.js": "/amigo-secreto/static/js/main.a1a2748b.js",
     "static/media/chimney.svg": "/amigo-secreto/static/media/chimney.c944d0a5fbd034c1862a29553c320f36.svg",
     "static/media/gift.svg": "/amigo-secreto/static/media/gift.4e396c76ce4749ecbdf38d766bf1fd94.svg",
     "static/media/christmas.svg": "/amigo-secreto/static/media/christmas.d6c1e32aba0da5113bb896276a82d167.svg",
     "static/media/arrow.svg": "/amigo-secreto/static/media/arrow.0ae5d66dfc54aac08649a12eaa85447a.svg",
     "index.html": "/amigo-secreto/index.html",
-    "main.9756d588.js.map": "/amigo-secreto/static/js/main.9756d588.js.map"
+    "main.a1a2748b.js.map": "/amigo-secreto/static/js/main.a1a2748b.js.map"
   },
   "entrypoints": [
-    "static/js/main.9756d588.js"
+    "static/js/main.a1a2748b.js"
   ]
 }
