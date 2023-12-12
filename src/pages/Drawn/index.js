@@ -4,50 +4,72 @@ import * as S from "./style";
 import history from "../../history";
 import { arrow } from "../../styles/arrow";
 import { Button } from "antd";
-import { ReactComponent as Chimney } from "../../assets/chimney.svg";
 import { ReactComponent as Arrow } from "../../assets/arrow.svg";
+import { withRouter } from "react-router-dom";
+import { getParticipants } from "../../services/getParticipants";
+import { drawnParticipant } from "../../services/drawnParticipant";
 
-const Sort = () => {
-    const [name, setName] = useState("José Dotta");
+const Drawn = (props) => {
+    const { match } = props;
+    const { name } = match.params;
 
-    const items = [
-        {
-            label: "Lisandra Martins",
-            key: "1",
-        },
-        {
-            label: "Elmo Dotta",
-            key: "2",
-        },
-        {
-            label: "José Dotta",
-            key: "3",
-        },
-        {
-            label: "Patrick Mello",
-            key: "4",
-        },
-    ];
+    const [loading, setLoading] = useState(true);
 
-    const [currentNameIndex, setCurrentNameIndex] = useState(0);
+    const [shownName, setShownName] = useState("");
+    const [participants, setParticipants] = useState([]);
+    const [loadingList, setLoadingList] = useState(true);
+    const [loadingDrawn, setLoadingDrawn] = useState(true);
+    const [drawnedParticipant, setDrawnedParticipant] = useState("");
 
     useEffect(() => {
-        const animateNames = () => {
+        (async () => {
+            const participantsData = await getParticipants();
+
+            if (participantsData) {
+                setParticipants(participantsData);
+            }
+
+            setLoadingList(false);
+        })();
+    }, []);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const participant = await drawnParticipant(name);
+                if (participant) {
+                    setDrawnedParticipant(participant.name);
+                }
+
+                setLoadingDrawn(false);
+            } catch (error) {
+                alert("Você já sorteou seu amigo secreto!");
+                history.push("/");
+            }
+        })();
+    }, [name]);
+
+    useEffect(() => {
+        for (let i = 0; i < participants.length * 2; i++) {
             setTimeout(() => {
-                setCurrentNameIndex((prevIndex) => prevIndex + 1);
-                setName(items[currentNameIndex % 4].label);
-            }, 50);
-        };
-
-        if (currentNameIndex < items.length * 10) {
-            animateNames();
-        } else {
-            const random = Math.floor(Math.random() * items.length);
-            setName(items[random].label);
+                const element = participants[i % participants.length];
+                setShownName(element.name);
+            }, 100 * i);
         }
-    }, [currentNameIndex]);
 
-    const currentName = items[currentNameIndex]?.label || "";
+        setTimeout(() => {
+            console.log(drawnedParticipant);
+            setShownName(drawnedParticipant);
+        }, participants.length * 2 * 100 + 100);
+    }, [drawnedParticipant, participants]);
+
+    // useEffect(() => {
+    //     if (!loading) {
+    //         setShownName(drawnedParticipant);
+    //     }
+    // }, [drawnedParticipant, loading]);
+
+    if (loadingDrawn || loadingList) return <div>Carregando...</div>;
 
     return (
         <>
@@ -72,7 +94,7 @@ const Sort = () => {
                                     textAlign: "center",
                                 }}
                             >
-                                {name}
+                                {shownName}
                             </S.Title>
 
                             <S.Text>
@@ -105,4 +127,4 @@ const Sort = () => {
     );
 };
 
-export default Sort;
+export default withRouter(Drawn);

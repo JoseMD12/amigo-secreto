@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import BackgroundCard from "../../components/BackgroundCard";
 import * as S from "./style";
 import history from "../../history";
@@ -7,52 +7,74 @@ import { Dropdown, Button, Space, Input } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { ReactComponent as Gift } from "../../assets/gift.svg";
 import { ReactComponent as Arrow } from "../../assets/arrow.svg";
+import api from "../../api";
+import { getParticipants } from "../../services/getParticipants";
 
 const WhoYouAre = () => {
     const [name, setName] = useState("");
-    const [suggestion1, setSuggestion1] = useState("");
-    const [suggestion2, setSuggestion2] = useState("");
-    const [suggestion3, setSuggestion3] = useState("");
+    const [giftSuggestion1, setSuggestion1] = useState("");
+    const [giftSuggestion2, setSuggestion2] = useState("");
+    const [giftSuggestion3, setSuggestion3] = useState("");
+    const [participants, setParticipants] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const [isDisable, setIsDisable] = useState(true);
     const [ButtonColor, setButtonColor] = useState("#B6B6B6");
-    useEffect(() => {}, []);
 
-    const onClick = ({ key }) => {
-        setName(items.find((item) => item.key === key).label);
-    };
-
-    const items = [
-        {
-            label: "Lisandra Martins",
-            key: "1",
-        },
-        {
-            label: "Elmo Dotta",
-            key: "2",
-        },
-        {
-            label: "José Dotta",
-            key: "3",
-        },
-        {
-            label: "Patrick Mello",
-            key: "4",
-        },
-    ];
+    console.log("render");
 
     useEffect(() => {
-        if (suggestion1.length > 0 && name.length > 0) {
+        (async () => {
+            const participantsData = await getParticipants();
+
+            if (participantsData) {
+                setParticipants(participantsData);
+            }
+
+            setLoading(false);
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (giftSuggestion1.length > 0 && name.length > 0) {
             setIsDisable(false);
             setButtonColor("#FF5539");
         } else {
             setIsDisable(true);
             setButtonColor("#B6B6B6");
         }
-    }, [suggestion1, name]);
+    }, [giftSuggestion1, name]);
+
+    if (loading) {
+        return <div>Carregando...</div>;
+    }
+
+    const onClick = ({ key }) => {
+        setName(items.find((item) => item.key === key).label);
+        participants.map((participant) => {
+            if (participant.id === key) {
+                setSuggestion1(participant.giftSuggestion1 ?? "");
+                setSuggestion2(participant.giftSuggestion2 ?? "");
+                setSuggestion3(participant.giftSuggestion3 ?? "");
+            }
+        });
+    };
+
+    const items = participants.map((participant) => {
+        return {
+            label: participant.name,
+            key: participant.id,
+        };
+    });
 
     const handleClick = () => {
-        history.push("/sort");
+        api.post("/participant/suggestion", {
+            name,
+            giftSuggestion1,
+            giftSuggestion2,
+            giftSuggestion3,
+        });
+        history.push("/drawn/" + name);
     };
 
     return (
@@ -73,7 +95,19 @@ const WhoYouAre = () => {
                         <S.FormContainer>
                             <S.InputContainer>
                                 <S.Label>Quem é você?</S.Label>
-                                <Dropdown menu={{ items, onClick }}>
+                                <Dropdown
+                                    menu={{
+                                        items,
+                                        onClick,
+                                        style: S.DropdownMenu,
+                                    }}
+                                    overlayStyle={{
+                                        ...S.DropdownOverlay,
+                                        overflowY: "scroll",
+                                        overflowX: "scroll",
+                                    }}
+                                    // autoAdjustOverflow={true}
+                                >
                                     <a onClick={(e) => e.preventDefault()}>
                                         <Space style={S.Text}>
                                             {name || "Selecione seu nome"}
@@ -95,7 +129,7 @@ const WhoYouAre = () => {
                                         padding: "2vh",
                                     }}
                                     required={true}
-                                    value={suggestion1}
+                                    value={giftSuggestion1}
                                     onChange={(e) =>
                                         setSuggestion1(e.target.value)
                                     }
@@ -110,6 +144,7 @@ const WhoYouAre = () => {
                                         marginTop: "-5vh",
                                         padding: "2vh",
                                     }}
+                                    value={giftSuggestion2}
                                     onChange={(e) =>
                                         setSuggestion2(e.target.value)
                                     }
@@ -124,6 +159,7 @@ const WhoYouAre = () => {
                                         marginTop: "-5vh",
                                         padding: "2vh",
                                     }}
+                                    value={giftSuggestion3}
                                     onChange={(e) =>
                                         setSuggestion3(e.target.value)
                                     }

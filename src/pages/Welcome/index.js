@@ -43,6 +43,7 @@ const Welcome = () => {
                                 height: "8vh",
                                 marginTop: "1.5vh",
                             }}
+                            onClick={() => history.push("/suggestions")}
                         >
                             VER PRESENTES SUGERIDOS
                         </Button>
