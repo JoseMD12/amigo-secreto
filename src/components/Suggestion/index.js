@@ -8,10 +8,7 @@ const Suggestion = ({ title, items }) => {
             {items.map((item, index) => (
                 <>
                     <S.Text key={item.key}>
-                        {index +
-                            1 +
-                            ". " +
-                            (item.label ? item.label : "Por enquanto nada")}
+                        {index + 1 + ". " + (item.label ? item.label : "")}
                     </S.Text>
                 </>
             ))}
